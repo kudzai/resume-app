@@ -3,6 +3,8 @@ from langgraph.graph import StateGraph, END
 import operator
 from typing_extensions import Annotated
 
+from utils import parse_resume
+
 
 class ScreeningDecision(TypedDict):
     reason: str
@@ -61,8 +63,8 @@ class ResumeScreener:
         return "decisions"
 
     def parse_resume(self, state: ScreenerState) -> ScreenerState:
-        print(f"Parsing resume...${state['path_to_resume']}")
-        return {"resume": "resume_parsed"}
+        parsed_resume = parse_resume(state["path_to_resume"])
+        return {"resume": parsed_resume}
 
     def generate_criteria(self, state: ScreenerState) -> ScreenerState:
         print("Generating criteria...")

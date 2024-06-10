@@ -4,4 +4,4 @@ langgraph
 langchain-nvidia-ai-endpoints
 python-dotenv
 httpx
-pylint
+pypdf
