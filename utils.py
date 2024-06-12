@@ -30,9 +30,13 @@ def get_model():
     )
 
 
+def _format_string(input_text: str) -> str:
+    return input_text.replace("\n", " ")
+
+
 def extra_json_object(input_text: str) -> dict | None:
     json_pattern = re.compile(r"\{[^}]+\}")
-    json_match = json_pattern.search(input_text)
+    json_match = json_pattern.search(_format_string(input_text))
 
     if json_match:
         json_str = json_match.group()
@@ -43,7 +47,7 @@ def extra_json_object(input_text: str) -> dict | None:
 
 def extract_json_list(input_text: str) -> list[str] | None:
     list_pattern = re.compile(r"\[.*?\]")
-    list_match = list_pattern.search(input_text)
+    list_match = list_pattern.search(_format_string(input_text))
 
     if list_match:
         list_str = list_match.group()

@@ -1,7 +1,7 @@
 import json
 import operator
 import os
-from typing import List, TypedDict
+from typing import List, Optional, TypedDict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, StateGraph
@@ -23,6 +23,7 @@ class ScreenerState(TypedDict):
     decisions: Annotated[List[ScreeningDecision], operator.add]
     decision: str
     reason: str
+    num_auto_generated_criteria: Optional[int]
 
 
 class ResumeScreener:
@@ -67,7 +68,7 @@ Your output should be in the following format:
 """
 
         self.CRITERIA_GENERATION_PROMPT = """
-From the job description, generate 3 to 5 criteria that can be used to measure the compatibility of a resume to the job description.
+From the job description, generate not more than {num_criteria} criteria that can be used to measure the compatibility of a resume to the job description.
 Your output should just be a list of strings in the following format with no other text, and ranked in order of importance:
 ["criteria1", "criteria2", "criteria3"]
         """
@@ -133,7 +134,11 @@ Your output should just be a list of strings in the following format with no oth
         }
 
     def should_generate_criteria(self, state: ScreenerState) -> str:
-        if state["criteria"] is None or len(state["criteria"]) == 0:
+        if (
+            "criteria" not in state
+            or state["criteria"] is None
+            or len(state["criteria"]) == 0
+        ):
             return "criteria"
 
         return "decisions"
@@ -151,7 +156,11 @@ Your output should just be a list of strings in the following format with no oth
                     state["job_description"], state["resume"]
                 )
             ),
-            HumanMessage(content=self.CRITERIA_GENERATION_PROMPT),
+            HumanMessage(
+                content=self.CRITERIA_GENERATION_PROMPT.format(
+                    num_criteria=(state["num_auto_generated_criteria"] or 3)
+                )
+            ),
         ]
         response = self.model.invoke(messages)
 
