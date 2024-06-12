@@ -2,6 +2,8 @@ from resume_screener import ResumeScreener
 import streamlit as st
 import os
 
+from utils import ApplicationState
+
 os.environ["NVIDIA_API_KEY"] = st.secrets["NVIDIA_API_KEY"]
 
 
@@ -98,3 +100,15 @@ def render_resume_matching_tab():
             render_overall_decision(response)
 
             render_decisions(response["decisions"])
+
+            # Always reset state after new CV
+            app_state = ApplicationState(
+                resume=response["resume"],
+                job_description=response["job_description"],
+                criteria=response["criteria"],
+                decisions=response["decisions"],
+                decision=response["decision"],
+                reason=response["reason"],
+            )
+
+            st.session_state.app_state = app_state

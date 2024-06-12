@@ -1,3 +1,4 @@
+from typing import List, TypedDict
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 import os
@@ -6,6 +7,16 @@ import json
 
 
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
+
+class ApplicationState(TypedDict):
+    resume: str
+    job_description: str
+    criteria: List[str]
+    decisions: List[dict]
+    decision: str
+    reason: str
+    personas: List[dict]
 
 
 def parse_resume(path_to_resume) -> str:
