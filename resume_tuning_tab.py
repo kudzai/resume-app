@@ -3,6 +3,19 @@ import streamlit as st
 from resume_doctor import ResumeDoctor
 
 
+def _render_questions(questions_with_categories):
+    if not questions_with_categories:
+        st.write("No questions found.")
+        return
+    with st.expander("## Suggested Interview Questions"):
+        categories = list(questions_with_categories.keys())
+        for category in categories:
+            st.markdown(f"### {category.capitalize()}")
+            questions = questions_with_categories[category]
+            for question in questions:
+                st.markdown(f"- {question}")
+
+
 def render_resume_tuning_tab():
     if "app_state" not in st.session_state:
         st.write("No application state found. Have you uploaded a resume?")
@@ -37,4 +50,9 @@ def render_resume_tuning_tab():
             ]
             st.session_state.app_state["age_category"] = age_category
 
-            st.markdown(st.session_state.app_state["interview_questions"])
+    if "updated_resume" in st.session_state.app_state:
+        with st.expander("## Updated Resume"):
+            st.code(st.session_state.app_state["updated_resume"])
+
+    if "interview_questions" in st.session_state.app_state:
+        _render_questions(st.session_state.app_state["interview_questions"])

@@ -97,9 +97,6 @@ def render_resume_matching_tab():
                     "num_auto_generated_criteria": num_auto_generated_criteria,
                 }
             )
-            render_overall_decision(response)
-
-            render_decisions(response["decisions"])
 
             # Always reset state after new CV
             app_state = ApplicationState(
@@ -112,3 +109,10 @@ def render_resume_matching_tab():
             )
 
             st.session_state.app_state = app_state
+
+    if "app_state" in st.session_state:
+        app_state = st.session_state.app_state
+        if "decision" in app_state:
+            render_overall_decision(app_state)
+        if "decisions" in app_state:
+            render_decisions(app_state["decisions"])
