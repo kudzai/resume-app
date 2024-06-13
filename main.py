@@ -1,4 +1,5 @@
 from inteview_simulation_tab import render_interview_simulation_tab
+from resume_formatter_tab import render_resume_formatter_tab
 from resume_matching_tab import render_resume_matching_tab
 import streamlit as st
 import os
@@ -37,4 +38,4 @@ if __name__ == "__main__":
         st.write("Skills Gap Analysis")
 
     with format_resume_tab:
-        st.write("Format Resume")
+        render_resume_formatter_tab()
