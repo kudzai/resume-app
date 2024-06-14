@@ -38,11 +38,6 @@ Here is the resume:
 Here is your persona:
 {persona}
 """
-        self.ASK_QUESTION_PROMPT = """
-Ask the candidate the following question. 
-{question}
-"""
-
         self.SELECT_AND_ASK_QUESTION_PROMPT = """
 Ask the candidate a question. Select from the following questions.
 {questions}
@@ -58,12 +53,6 @@ The candidate has given the following answer:
 
 Comment on the answer, directly addressing the candidate, using your own knowledge and experience, and the candidate's resume. Suggest how it can be improved if possible.
 """
-        self.ASK_FOR_QUESTION_CATEGORY_PROMPT = """
-Ask the candidate which sub-topic to focus on next. The candidate must choose from the following categories:
-{categories}
-
-The candidate can also say "DONE" to finish the interview.
-"""
         self.INTRODUCTION_PROMPT = """
 Start by introducing yourself, and welcoming the candidate to the interview. 
 Be empathetic and friendly, but firm.
@@ -74,7 +63,6 @@ Also let the candidate they can reply with "DONE" to finish the interview.
 The candidate has finished the interview. Thank the candidate for their time and consideration.
 """
         builder.add_node("introduction", self.introduction)
-        # builder.add_node("question_category", self.ask_for_question_category)
         builder.add_node("ask_question", self.ask_question)
         builder.add_node("review_answer", self.review_answer)
         builder.add_node("pre_review_answer", self.pre_review_answer)
@@ -113,27 +101,6 @@ The candidate has finished the interview. Thank the candidate for their time and
         messages = [
             self._get_system_prompt(state),
             HumanMessage(content=self.INTRODUCTION_PROMPT),
-        ]
-
-        response = self.model.invoke(messages)
-
-        return {"messages": [AIMessage(content=response.content)]}
-
-    def ask_for_question_category(
-        self, state: InterviewSimulatorState
-    ) -> InterviewSimulatorState:
-        messages = [
-            self._get_system_prompt(state),
-        ]
-        if len(state["messages"]) > 0:
-            messages += state["messages"]
-
-        messages += [
-            HumanMessage(
-                content=self.ASK_FOR_QUESTION_CATEGORY_PROMPT.format(
-                    categories=", ".join(state["interview_questions"].keys())
-                )
-            )
         ]
 
         response = self.model.invoke(messages)
