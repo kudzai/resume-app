@@ -1,4 +1,4 @@
-from inteview_simulation_tab import render_interview_simulation_tab
+from interview_simulation_tab import render_interview_simulation_tab
 from resume_formatter_tab import render_resume_formatter_tab
 from resume_matching_tab import render_resume_matching_tab
 import streamlit as st

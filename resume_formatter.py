@@ -95,23 +95,21 @@ Your response should be the resume in markdown format, with no other comments.
 
     def format_resume(self, state: ResumeFormatterState):
         system_message = self._get_system_prompt(state)
-        messages = [system_message]
-        first_message = []
+        if state["format_style"] == "contract":
+            prompt = self.CONTRACT_STYLE_PROMPT
+        else:
+            prompt = self.CHRONOLOGICAL_STYLE_PROMPT
+
+        # Lets remember the first message specifying the style to use
+        first_message = HumanMessage(content=prompt)
+        messages = [system_message, first_message]
         if len(state["messages"]) > 0:
             # If we are already chatting, just add all the messages to date
             messages += state["messages"]
-        else:
-            if state["format_style"] == "contract":
-                prompt = self.CONTRACT_STYLE_PROMPT
-            else:
-                prompt = self.CHRONOLOGICAL_STYLE_PROMPT
-            # Lets remember the first message specifying the style to use
-            first_message = [HumanMessage(content=prompt)]
-            messages += first_message
 
         response = self.model.invoke(messages)
 
-        return {"messages": first_message + [AIMessage(content=response.content)]}
+        return {"messages": [AIMessage(content=response.content)]}
 
     def should_format_resume(self, state: ResumeFormatterState):
         user_input = state["messages"][-1].content

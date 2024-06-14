@@ -1,25 +1,13 @@
 import streamlit as st
 
 from resume_formatter import ResumeFormatter
-from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.messages import HumanMessage
 import uuid
-
-
-@st.cache_resource
-def get_memory():
-    return SqliteSaver.from_conn_string(":memory:")
+from utils import get_memory, get_thread
 
 
 def user_input_form():
     st.chat_input(key="user_format_input")
-
-
-def show_message(message):
-    if message.type == "human":
-        st.chat_message("user").write(message.content)
-    else:
-        st.chat_message("assistant").write(message.content)
 
 
 def run(agent, thread, format_style: str):
@@ -51,6 +39,13 @@ def _resume_with_state_update(agent, thread):
     st.session_state["app_state"]["formatted_resume"] = formatted_resume
 
 
+def show_message(message):
+    if message.type == "human":
+        st.chat_message("user").write(message.content)
+    else:
+        st.chat_message("assistant").code(message.content)
+
+
 def show_messages(agent, thread):
     messages = agent.graph.get_state(thread).values["messages"]
     for message in messages:
@@ -60,11 +55,9 @@ def show_messages(agent, thread):
         user_input_form()
 
 
-def get_thread():
-    # Thread id is used to manage multiple simultaneous chats
-    if "thread_id" not in st.session_state:
-        st.session_state["thread_id"] = str(uuid.uuid4())
-    return {"configurable": {"thread_id": st.session_state["thread_id"]}}
+def get_formatter_thread():
+    name_of_thread = "formatter_thread_id"
+    return get_thread(name_of_thread)
 
 
 def render_resume_formatter_tab():
@@ -79,16 +72,13 @@ def render_resume_formatter_tab():
 
     format_options = ["contract", "chronological"]
     format_style = st.selectbox("Format Style", options=[""] + format_options)
-    print(format_style)
     if format_style in format_options:
         with st.spinner("Loading..."):
-            if "format_initialised" not in st.session_state:
-                run(formatter, get_thread(), format_style)
-                st.session_state["format_initialised"] = True
-            elif (
-                "user_format_input" in st.session_state
-                and st.session_state["user_format_input"] is not None
-            ):
-                _resume_with_state_update(formatter, get_thread())
+            run(formatter, get_formatter_thread(), format_style)
+    if (
+        "user_format_input" in st.session_state
+        and st.session_state["user_format_input"] is not None
+    ):
+        _resume_with_state_update(formatter, get_formatter_thread())
 
-    show_messages(formatter, get_thread())
+    show_messages(formatter, get_formatter_thread())

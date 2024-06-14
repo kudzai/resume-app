@@ -1,10 +1,12 @@
 from typing import List, TypedDict
+import uuid
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 import os
 import re
 import json
-
+from langgraph.checkpoint.sqlite import SqliteSaver
+import streamlit as st
 
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
 
@@ -64,3 +66,20 @@ def extract_json_list(input_text: str) -> list[str] | None:
         list_str = list_match.group()
         return json.loads(list_str)
     return None
+
+
+@st.cache_resource
+def get_memory():
+    return SqliteSaver.from_conn_string(":memory:")
+
+
+def get_thread(name_of_thread: str):
+    # Thread id is used to manage multiple simultaneous chats
+    if name_of_thread not in st.session_state:
+        st.session_state[name_of_thread] = str(uuid.uuid4())
+    return {"configurable": {"thread_id": st.session_state[name_of_thread]}}
+
+
+def clear_thread(name_of_thread: str):
+    if name_of_thread in st.session_state:
+        del st.session_state[name_of_thread]
