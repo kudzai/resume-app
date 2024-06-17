@@ -2,23 +2,31 @@ from typing import List, TypedDict
 import uuid
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
-import os
+from langchain_core.messages import AnyMessage
 import re
 import json
 from langgraph.checkpoint.sqlite import SqliteSaver
 import streamlit as st
 
 NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1"
+model_name = "meta/llama3-70b-instruct"
 
 
 class ApplicationState(TypedDict):
     resume: str
     job_description: str
-    criteria: List[str]
-    decisions: List[dict]
+    criteria: List[str] | None
+    decisions: List[dict] | None
+    persona: str | None
+    age_category: str | None
+    interview_session: List[AnyMessage] | None
+
+
+class Decision(TypedDict):
     decision: str
     reason: str
-    personas: List[dict]
+    persona: str
+    age_category: str
 
 
 def parse_resume(path_to_resume) -> str:
@@ -31,13 +39,10 @@ def parse_resume(path_to_resume) -> str:
     return content
 
 
-model_name = "meta/llama3-70b-instruct"
-
-
 def get_model():
     return ChatNVIDIA(
         model=model_name,
-        api_key=os.getenv("NVIDIA_API_KEY"),
+        api_key=st.session_state["NVIDIA_API_KEY"],
         base_url=NVIDIA_BASE_URL,
         temperature=0.0,
     )

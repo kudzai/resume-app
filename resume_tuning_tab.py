@@ -21,6 +21,12 @@ def render_resume_tuning_tab():
         st.write("No application state found. Have you uploaded a resume?")
         return
 
+    st.subheader("Resume Tuning")
+    st.markdown(
+        "- Updates the resume to better match the job description. \n"
+        "- Creates an example persona for a likely interviewer given the job description. Age category is used for the persona.\n"
+        "- Generates sample interview questions based on the job description and the persona.\n"
+    )
     app_state = st.session_state["app_state"]
     age_options = ["Baby Boomers", "GenX", "GenY", "GenZ"]
 
@@ -30,7 +36,9 @@ def render_resume_tuning_tab():
         placeholder="Select an age category",
     )
 
-    update_resume = st.button("Update Resume", disabled=age_category not in age_options)
+    update_resume = st.button(
+        "Run Generation", disabled=age_category not in age_options
+    )
 
     if update_resume and age_category in age_options:
         with st.spinner("Updating resume..."):

@@ -38,6 +38,14 @@ Here is the resume:
 Here is your persona:
 {persona}
 """
+
+        self.INTRODUCTION_PROMPT = """
+Start by introducing yourself, and welcoming the candidate to the interview. 
+Be empathetic and friendly, but firm.
+
+Also let the candidate they can reply with "DONE" to finish the interview.
+"""
+
         self.SELECT_AND_ASK_QUESTION_PROMPT = """
 Ask the candidate a question. Select from the following questions.
 {questions}
@@ -52,12 +60,6 @@ The candidate has given the following answer:
 {answer}
 
 Comment on the answer, directly addressing the candidate, using your own knowledge and experience, and the candidate's resume. Suggest how it can be improved if possible.
-"""
-        self.INTRODUCTION_PROMPT = """
-Start by introducing yourself, and welcoming the candidate to the interview. 
-Be empathetic and friendly, but firm.
-
-Also let the candidate they can reply with "DONE" to finish the interview.
 """
         self.WRAP_UP_PROMPT = """
 The candidate has finished the interview. Thank the candidate for their time and consideration.

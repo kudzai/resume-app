@@ -73,7 +73,23 @@ def render_overall_decision(response):
 
 
 def render_resume_matching_tab():
-    st.title("How Do I Match?")
+    st.subheader("Resume fit check")
+    st.markdown(
+        "Evaluates how well a resume matches a job description, against specified criteria. "
+        "The matcher can also infer criteria from the job description."
+    )
+    st.markdown("### Example files\n")
+    col1, col2 = st.columns(2)
+    with col1:
+        with open("data/full-stack-engineer-jd.txt", "r") as f:
+            st.download_button(
+                "Download job description", f, file_name="job-description.txt"
+            )
+
+    with col2:
+        with open("data/john-doe-resume.pdf", "rb") as f:
+            st.download_button("Download Resume", f, file_name="john-doe-resume.pdf")
+
     job_description = get_job_description()
     criteria = get_criteria()
     num_auto_generated_criteria = st.slider(
@@ -84,7 +100,7 @@ def render_resume_matching_tab():
         help="Number of criteria to generate automatically if none are provided",
     )
     resume_file_path = upload_resume()
-    start = st.button("Start")
+    start = st.button("Run check")
     if start and resume_file_path is not None and job_description is not None:
         with st.spinner("Scoring ..."):
             screener = ResumeScreener()

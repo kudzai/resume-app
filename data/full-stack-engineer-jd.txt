@@ -1,0 +1,14 @@
+A rapidly growing global industry leader, known for its innovative solutions and disruptive approach is seeking a strong engineer from a JVM background, ideally with working knowledge of Kotlin. 
+
+Requirements:
+Extensive experience with JVM languages (preferably Kotlin).
+Deep understanding of cloud technologies, particularly AWS, and the ability to leverage them effectively in building scalable solutions.
+Proficiency with React/Typescript.
+Proficiency with Kafka.
+Familiarity with Kubernetes for container orchestration and deployment.
+Strong understanding of micro-services architecture.
+
+Responsibilities:
+Design, develop, and maintain high-quality software solutions using Java and other JVM languages.
+Collaborate with cross-functional teams to architect and implement scalable, cloud-native applications on AWS.
+Mentor junior engineers, and contribute to the continuous improvement of development processes and practices.
