@@ -1,9 +1,16 @@
+# /resume-app/resume_tuning_tab.py
 import streamlit as st
 
 from resume_doctor import ResumeDoctor
 
 
 def _render_questions(questions_with_categories):
+    """
+    Renders a list of interview questions grouped by category.
+
+    Args:
+        questions_with_categories: A dictionary mapping category names to lists of questions.
+    """
     if not questions_with_categories:
         st.write("No questions found.")
         return
@@ -17,6 +24,12 @@ def _render_questions(questions_with_categories):
 
 
 def render_resume_tuning_tab():
+    """
+    Renders the resume tuning tab in the Streamlit app.
+
+    This tab allows users to update their resume based on a job description and age category.
+    It also generates a persona for a likely interviewer and suggests interview questions.
+    """
     if "app_state" not in st.session_state:
         st.write("No application state found. Have you uploaded a resume?")
         return

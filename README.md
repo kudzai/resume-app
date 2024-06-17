@@ -37,3 +37,10 @@ You can now view your Streamlit app in your browser.
   Network URL: http://192.168.86.72:8501
 ```
 If you have setup the key in the secrets file, then the key field should be populated, and the app. If not, then enter the key in the field within the sidebar.
+
+
+## Demo
+You can find the demo files in the presentation folder.
+![App Screenshot](/presentation/resume-app-03.png)
+
+![Youtube](https://youtu.be/qr6Z1_zf-c8)

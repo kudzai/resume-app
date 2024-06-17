@@ -1,3 +1,4 @@
+# /resume-app/main.py
 from interview_simulation_tab import render_interview_simulation_tab
 from resume_matching_tab import render_resume_matching_tab
 import streamlit as st
@@ -23,6 +24,16 @@ with st.sidebar:
 
 
 def main():
+    """
+    Main function for the Streamlit app.
+
+    This function sets up the tabs for the different features of the app:
+    - Resume Fit Check
+    - Resume Tuning And Interview Preparation
+    - Interview Simulation
+
+    Each tab renders its corresponding functionality.
+    """
     (resume_matching_tab, resume_tuning_and_prep_tab, interview_simulation_tab) = (
         st.tabs(
             [

@@ -1,3 +1,4 @@
+# /resume-app/interview_simulator.py
 from typing import List, Literal, TypedDict
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, SystemMessage, AnyMessage, AIMessage
@@ -7,6 +8,19 @@ from typing import Annotated
 
 
 class InterviewSimulatorState(TypedDict):
+    """
+    A dictionary representing the state of the interview simulator.
+
+    Attributes:
+        resume: The candidate's resume text.
+        persona: The persona of the interviewer.
+        job_description: The job description text.
+        interview_questions: A list of interview questions, grouped by category.
+        messages: A list of messages exchanged during the interview.
+        last_question: The last question asked by the interviewer.
+        ended: A boolean indicating whether the interview has ended.
+    """
+
     resume: str
     persona: str
     job_description: str
@@ -17,12 +31,32 @@ class InterviewSimulatorState(TypedDict):
 
 
 class InterviewSimulator:
+    """
+    A class that simulates an interview using a language model.
+
+    This class takes a resume, job description, persona, and interview questions as input.
+    It then uses a language model to simulate an interview between the interviewer and the candidate,
+    generating responses for both parties based on the provided context.
+    """
+
     def __init__(self, checkpointer):
+        """
+        Initializes the InterviewSimulator class.
+
+        Args:
+            checkpointer: A checkpointer object used to save and load the state of the interview.
+        """
         self.model = get_model()
         self.checkpointer = checkpointer
         self.graph = self.build_graph()
 
     def build_graph(self):
+        """
+        Builds the state graph for the interview simulator.
+
+        The state graph defines the flow of the interview,
+        including the different states and transitions between them.
+        """
         builder = StateGraph(InterviewSimulatorState)
 
         self.SYSTEM_PROMPT = """
@@ -88,9 +122,27 @@ The candidate has finished the interview. Thank the candidate for their time and
         )
 
     def pre_review_answer(self, state: InterviewSimulatorState):
+        """
+        A placeholder function for pre-reviewing the candidate's answer.
+
+        This function is currently empty and does not perform any actions.
+        It is included as a potential point for future enhancements.
+        """
         pass
 
     def _get_system_prompt(self, state: InterviewSimulatorState) -> SystemMessage:
+        """
+        Returns the system prompt for the language model.
+
+        This method constructs the system prompt based on the provided context,
+        including the job description, resume, and persona.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            The system prompt string.
+        """
         return SystemMessage(
             content=self.SYSTEM_PROMPT.format(
                 job_description=state["job_description"],
@@ -100,6 +152,18 @@ The candidate has finished the interview. Thank the candidate for their time and
         )
 
     def introduction(self, state: InterviewSimulatorState) -> InterviewSimulatorState:
+        """
+        Generates the interviewer's introduction.
+
+        This method uses the language model to generate the interviewer's introduction,
+        following the instructions provided in the INTRODUCTION_PROMPT.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            The updated state with the interviewer's introduction added to the messages list.
+        """
         messages = [
             self._get_system_prompt(state),
             HumanMessage(content=self.INTRODUCTION_PROMPT),
@@ -112,6 +176,19 @@ The candidate has finished the interview. Thank the candidate for their time and
     def should_end_or_review(
         self, state: InterviewSimulatorState
     ) -> Literal["wrap_up", "pre_review_answer"]:
+        """
+        Determines whether to end the interview or review the candidate's answer.
+
+        This method checks the last message from the candidate.
+        If the message is "DONE", it returns "wrap_up" to indicate that the interview should end.
+        Otherwise, it returns "pre_review_answer" to indicate that the candidate's answer should be reviewed.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            "wrap_up" or "pre_review_answer" depending on the candidate's last message.
+        """
         last_response = state["messages"][-1]
         if last_response.content.upper() == "DONE":
             return "wrap_up"
@@ -119,6 +196,18 @@ The candidate has finished the interview. Thank the candidate for their time and
             return "pre_review_answer"
 
     def review_answer(self, state: InterviewSimulatorState) -> InterviewSimulatorState:
+        """
+        Generates the interviewer's response to the candidate's answer.
+
+        This method uses the language model to generate the interviewer's response,
+        following the instructions provided in the REVIEW_ANSWER_PROMPT.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            The updated state with the interviewer's response added to the messages list.
+        """
         messages = [
             self._get_system_prompt(state),
         ]
@@ -139,6 +228,18 @@ The candidate has finished the interview. Thank the candidate for their time and
         return {"messages": [AIMessage(content=response.content)]}
 
     def ask_question(self, state: InterviewSimulatorState) -> InterviewSimulatorState:
+        """
+        Generates the next interview question.
+
+        This method uses the language model to select and ask the next interview question,
+        following the instructions provided in the SELECT_AND_ASK_QUESTION_PROMPT.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            The updated state with the new question added to the messages list and stored as the last_question.
+        """
         messages = [
             self._get_system_prompt(state),
         ]
@@ -160,6 +261,18 @@ The candidate has finished the interview. Thank the candidate for their time and
         }
 
     def wrap_up(self, state: InterviewSimulatorState) -> InterviewSimulatorState:
+        """
+        Generates the interviewer's closing remarks.
+
+        This method uses the language model to generate the interviewer's closing remarks,
+        following the instructions provided in the WRAP_UP_PROMPT.
+
+        Args:
+            state: The current state of the interview simulator.
+
+        Returns:
+            The updated state with the interviewer's closing remarks added to the messages list and the ended flag set to True.
+        """
         messages = [
             self._get_system_prompt(state),
         ]

@@ -1,3 +1,4 @@
+# /resume-app/resume_doctor.py
 from typing import List, TypedDict
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -14,6 +15,15 @@ class ResumeDoctorState(TypedDict):
 
 
 class ResumeDoctor:
+    """
+    A class that uses a language model to help improve resumes.
+
+    This class takes a resume, job description, and age category as input.
+    It then uses a language model to generate a persona for a likely interviewer,
+    rewrite the resume to appeal to that persona, and generate interview questions
+    that the persona is likely to ask.
+    """
+
     def __init__(self):
         self.model = get_model()
         self.graph = self.build_graph()

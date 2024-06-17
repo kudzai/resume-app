@@ -1,3 +1,4 @@
+# /resume-app/resume_screener.py
 import json
 import operator
 import os
@@ -11,11 +12,33 @@ from utils import extra_json_object, extract_json_list, get_model, parse_resume
 
 
 class ScreeningDecision(TypedDict):
+    """
+    A dictionary representing a screening decision.
+
+    Attributes:
+        reason: The reason for the decision.
+        decision: The decision itself, either "pass" or "fail".
+    """
+
     reason: str
     decision: str
 
 
 class ScreenerState(TypedDict):
+    """
+    A dictionary representing the state of the resume screener.
+
+    Attributes:
+        path_to_resume: The path to the resume file.
+        resume: The parsed resume text.
+        job_description: The job description text.
+        criteria: A list of screening criteria.
+        decisions: A list of screening decisions.
+        decision: The overall decision, either "pass" or "fail".
+        reason: The reason for the overall decision.
+        num_auto_generated_criteria: The number of automatically generated criteria.
+    """
+
     path_to_resume: str
     resume: str
     job_description: str
@@ -27,7 +50,21 @@ class ScreenerState(TypedDict):
 
 
 class ResumeScreener:
+    """
+    A class that uses a language model to screen resumes against a job description.
+
+    This class takes a resume file path and a job description as input.
+    It then uses a language model to generate screening criteria,
+    evaluate the resume against each criterion, and make an overall decision
+    about the compatibility of the resume with the job description.
+    """
+
     def __init__(self):
+        """
+        Initializes the ResumeScreener class.
+
+        Loads the language model and sets up the system prompts and state graph.
+        """
         self.model = get_model()
 
         self.SYSTEM_PROMPT = """
@@ -76,9 +113,25 @@ Your output should just be a list of strings in the following format with no oth
         self.build_graph()
 
     def get_system_prompt(self, job_description: str, resume: str) -> str:
+        """
+        Returns the system prompt for the language model.
+
+        Args:
+            job_description: The job description text.
+            resume: The parsed resume text.
+
+        Returns:
+            The system prompt string.
+        """
         return self.SYSTEM_PROMPT.format(job_description=job_description, resume=resume)
 
     def build_graph(self):
+        """
+        Builds the state graph for the resume screener.
+
+        The state graph defines the flow of the screening process,
+        including the different states and transitions between them.
+        """
         builder = StateGraph(ScreenerState)
         builder.add_node("parse", self.parse_resume)
         builder.add_node("generate_criteria", self.generate_criteria)
@@ -108,6 +161,18 @@ Your output should just be a list of strings in the following format with no oth
         self.graph = builder.compile()
 
     def overall_decision(self, state: ScreenerState) -> ScreenerState:
+        """
+        Makes the overall decision about the resume's compatibility.
+
+        This method takes the results of the individual criterion evaluations
+        and uses the language model to make an overall decision.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            The updated state with the overall decision and reason.
+        """
         compatibilities = []
         for i, decision in enumerate(state["decisions"]):
             decision["criterion"] = state["criteria"][i]
@@ -134,6 +199,20 @@ Your output should just be a list of strings in the following format with no oth
         }
 
     def should_generate_criteria(self, state: ScreenerState) -> str:
+        """
+        Determines whether to generate criteria or evaluate existing ones.
+
+        This method checks if criteria have already been generated.
+        If not, it returns "criteria" to indicate that criteria generation
+        should be the next step. Otherwise, it returns "decisions" to
+        indicate that criterion evaluation should be the next step.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            "criteria" or "decisions" depending on the current state.
+        """
         if (
             "criteria" not in state
             or state["criteria"] is None
@@ -144,12 +223,35 @@ Your output should just be a list of strings in the following format with no oth
         return "decisions"
 
     def parse_resume(self, state: ScreenerState) -> ScreenerState:
+        """
+        Parses the resume file.
+
+        This method reads the resume file and parses it into plain text.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            The updated state with the parsed resume text.
+        """
         parsed_resume = parse_resume(state["path_to_resume"])
         if os.path.exists(state["path_to_resume"]):
             os.remove(state["path_to_resume"])
         return {"resume": parsed_resume}
 
     def generate_criteria(self, state: ScreenerState) -> ScreenerState:
+        """
+        Generates screening criteria from the job description.
+
+        This method uses the language model to generate a list of criteria
+        that can be used to evaluate the resume's compatibility with the job description.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            The updated state with the generated criteria.
+        """
         messages = [
             SystemMessage(
                 content=self.get_system_prompt(
@@ -169,12 +271,39 @@ Your output should just be a list of strings in the following format with no oth
         return {"criteria": parsed_response}
 
     def should_evaluate_criteria(self, state: ScreenerState) -> bool:
+        """
+        Determines whether to evaluate more criteria or make the overall decision.
+
+        This method checks if all criteria have been evaluated.
+        If not, it returns "evaluate_criteria" to indicate that more criteria
+        should be evaluated. Otherwise, it returns "decision" to indicate
+        that the overall decision should be made.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            "evaluate_criteria" or "decision" depending on the current state.
+        """
         if len(state["criteria"]) > len(state["decisions"]):
             return "evaluate_criteria"
 
         return "decision"
 
     def evaluate_criteria(self, state: ScreenerState) -> ScreenerState:
+        """
+        Evaluates the resume against a single criterion.
+
+        This method uses the language model to evaluate the resume against
+        the next criterion in the list. It records the decision and reason
+        for each criterion evaluation.
+
+        Args:
+            state: The current state of the screener.
+
+        Returns:
+            The updated state with the new decision and reason.
+        """
         last_entry = len(state["decisions"])
         next_criteria = state["criteria"][last_entry]
 

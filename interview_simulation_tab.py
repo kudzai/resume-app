@@ -1,3 +1,4 @@
+# /resume-app/interview_simulation_tab.py
 import streamlit as st
 
 from interview_simulator import InterviewSimulator
@@ -9,14 +10,35 @@ simulation_thread_name = "interview_simulation_thread_id"
 
 
 def _get_simulation_thread():
+    """
+    Retrieves the thread associated with the interview simulation.
+
+    Returns:
+        dict: The thread dictionary.
+    """
     return get_thread(simulation_thread_name)
 
 
 def _reset_simulation_state():
+    """
+    Resets the state of the interview simulation.
+
+    Clears the thread associated with the simulation.
+    """
     clear_thread(simulation_thread_name)
 
 
 def _run(agent, thread):
+    """
+    Starts the interview simulation.
+
+    This function initializes the interview simulation by invoking the agent's state graph
+    with the necessary context, including the resume, persona, job description, and interview questions.
+
+    Args:
+        agent: The InterviewSimulator object.
+        thread: The thread dictionary.
+    """
     resume = st.session_state["app_state"]["resume"]
     persona = st.session_state["app_state"]["persona"]
     job_description = st.session_state["app_state"]["job_description"]
@@ -34,6 +56,16 @@ def _run(agent, thread):
 
 
 def _resume_with_state_update(agent: InterviewSimulator, thread: dict):
+    """
+    Resumes the interview simulation with updated state.
+
+    This function updates the state of the interview simulation with the user's input
+    and then resumes the simulation by invoking the agent's state graph.
+
+    Args:
+        agent: The InterviewSimulator object.
+        thread: The thread dictionary.
+    """
     user_input = str(st.session_state["interview_simulation_response"])
 
     agent.graph.update_state(
@@ -46,10 +78,25 @@ def _resume_with_state_update(agent: InterviewSimulator, thread: dict):
 
 
 def _user_response():
+    """
+    Presents a chat input for the user to provide their response.
+
+    This function uses Streamlit's chat_input component to allow the user to enter their response
+    to the interviewer's question.
+    """
     st.chat_input(key="interview_simulation_response")
 
 
 def _show_message(message):
+    """
+    Displays a message in the chat interface.
+
+    This function renders a message in the Streamlit chat interface,
+    distinguishing between messages from the user and the assistant (interviewer).
+
+    Args:
+        message: The message to be displayed.
+    """
     if message.type == "human":
         st.chat_message("user").write(message.content)
     else:
@@ -57,6 +104,17 @@ def _show_message(message):
 
 
 def _show_messages(agent, thread):
+    """
+    Displays the messages exchanged during the interview simulation.
+
+    This function retrieves the messages from the interview simulation's state
+    and displays them in the Streamlit chat interface. It also checks if the interview has ended
+    and presents a chat input for the user to provide their response if the interview is ongoing.
+
+    Args:
+        agent: The InterviewSimulator object.
+        thread: The thread dictionary.
+    """
     messages = agent.graph.get_state(thread).values["messages"]
     st.session_state["app_state"]["interview_session"] = messages
     has_ended = (
@@ -72,6 +130,13 @@ def _show_messages(agent, thread):
 
 
 def render_interview_simulation_tab():
+    """
+    Renders the interview simulation tab in the Streamlit app.
+
+    This tab allows users to simulate an interview with an AI interviewer,
+    using the pre-generated interview questions and persona. The user can interact with the AI
+    by providing their responses to the questions, and the AI will provide feedback on the answers.
+    """
     if (
         "app_state" not in st.session_state
         or "interview_questions" not in st.session_state["app_state"]

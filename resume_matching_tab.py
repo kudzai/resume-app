@@ -1,13 +1,21 @@
+# /resume-app/resume_matching_tab.py
 from resume_screener import ResumeScreener
 import streamlit as st
 import os
 
 from utils import ApplicationState
 
-os.environ["NVIDIA_API_KEY"] = st.secrets["NVIDIA_API_KEY"]
-
 
 def upload_resume() -> str:
+    """
+    Handles resume upload from the user.
+
+    This function presents a file uploader to the user, allowing them to upload a PDF resume.
+    If a file is uploaded, it is saved to the 'data' directory and the file path is returned.
+
+    Returns:
+        str: The path to the uploaded resume file, or None if no file is uploaded.
+    """
     uploaded_file = st.file_uploader(
         "Upload CV",
         type=["pdf"],
@@ -25,6 +33,14 @@ def upload_resume() -> str:
 
 
 def get_job_description():
+    """
+    Gets the job description from the user.
+
+    This function presents a text area to the user, allowing them to enter the job description.
+
+    Returns:
+        str: The job description entered by the user.
+    """
     return st.text_area(
         "Job Description",
         value=None,
@@ -35,6 +51,16 @@ def get_job_description():
 
 
 def get_criteria() -> list[str] | None:
+    """
+    Gets the criteria for matching from the user.
+
+    This function presents a text area to the user, allowing them to enter criteria for matching.
+    The user can separate multiple criteria using the '|' character.
+    If no criteria are provided, the function returns None, indicating that criteria should be inferred from the job description.
+
+    Returns:
+        list[str] | None: A list of criteria entered by the user, or None if no criteria are provided.
+    """
     criteria_str = st.text_area(
         "Criteria for matching",
         value=None,
@@ -50,6 +76,15 @@ def get_criteria() -> list[str] | None:
 
 
 def render_decisions(decisions: list[dict]):
+    """
+    Renders the decisions made for each individual criterion.
+
+    This function displays the results of the matching process for each criterion,
+    showing whether the resume matched the criterion and the reason for the decision.
+
+    Args:
+        decisions: A list of dictionaries, each representing a decision for a specific criterion.
+    """
     st.subheader("Matching against individual criteria")
     for decision in decisions:
         if decision["decision"] == "fail":
@@ -62,6 +97,15 @@ def render_decisions(decisions: list[dict]):
 
 
 def render_overall_decision(response):
+    """
+    Renders the overall decision about the resume's match with the job description.
+
+    This function displays the overall decision, indicating whether the resume is a match or not,
+    along with the reason for the decision.
+
+    Args:
+        response: A dictionary containing the overall decision and reason.
+    """
     if response["decision"] == "fail":
         status = ":red[Not a match]"
     else:
@@ -73,22 +117,29 @@ def render_overall_decision(response):
 
 
 def render_resume_matching_tab():
+    """
+    Renders the resume matching tab in the Streamlit app.
+
+    This tab allows users to upload a resume and job description, and then evaluate how well the resume matches the job description.
+    Users can provide their own criteria for matching, or let the system infer criteria from the job description.
+    The results are displayed in a user-friendly format, showing the decisions for each criterion and the overall decision.
+    """
     st.subheader("Resume fit check")
     st.markdown(
         "Evaluates how well a resume matches a job description, against specified criteria. "
         "The matcher can also infer criteria from the job description."
     )
-    st.markdown("### Example files\n")
-    col1, col2 = st.columns(2)
-    with col1:
-        with open("data/full-stack-engineer-jd.txt", "r") as f:
-            st.download_button(
-                "Download job description", f, file_name="job-description.txt"
-            )
+    # st.markdown("### Example files\n")
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     with open("data/full-stack-engineer-jd.txt", "r") as f:
+    #         st.download_button(
+    #             "Download job description", f, file_name="job-description.txt"
+    #         )
 
-    with col2:
-        with open("data/john-doe-resume.pdf", "rb") as f:
-            st.download_button("Download Resume", f, file_name="john-doe-resume.pdf")
+    # with col2:
+    #     with open("data/john-doe-resume.pdf", "rb") as f:
+    #         st.download_button("Download Resume", f, file_name="john-doe-resume.pdf")
 
     job_description = get_job_description()
     criteria = get_criteria()
