@@ -1,41 +1,39 @@
-## Resources
-- [How to write the perfect CV](https://www.economist.com/business/2024/05/30/how-to-write-the-perfect-cv)
+#Resume App
+A simple application using NVidia endpoints and LangGraph. The application helps jobs seekers with how well they match a job description across a number of criteria. 
 
-```txt
-A résumé is not a list of every job you ever had. It is not your autobiography. It is, like that hair-care advert, a marketing tool. Your audience is made up of recruiters and hiring managers. Like cocktail-party guests, they do not take a long time to decide if they want to keep talking. According to one study, such professionals spend an average of 7.4 seconds skimming a job application. Your guest Bartleby has a few tips on how best to ensure that these seconds count.
+Consists of 3 independently-run agents, with the output of each agent added to a global state. The app has been structured so each agent is run from a separate tab.
+
+- Resume matching agent. This agent has to execute first, and only depends on the user inputs - the resume, job description, and optionally the matching criteria.
+- Resume tuner and questions generator agent. This is second to run, and depends on the outputs from the first agent
+- Interview simulation agent. This depends on the outputs of the other 2 agents, coupled via the global state. This is an interactive agent, requiring the user to answer questions, and then reviewing the answers. Currently, this agent does not handle follow-up questions, but can be made to do so.
+
+## Setting up
+Ideally setup a dedicated virtual environment e.g.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-
-### Fun output
-JD:
-```txt
-We are seeking a Strategy Consulting Team Leader with deep Financial Services sector experience to join our team at a leading Global Financial Services or Investment firm. The ideal candidate will have significant experience in managing consulting engagements, developing and implementing business strategies, and leading post-M&A integration processes. An MBA from a top-tier institution and a proven track record of delivering high-impact results are essential.
-
-This role is perfect for someone looking to transition from consulting to an in-house position, where they can drive strategic initiatives and optimize performance capabilities. Strong analytical and strategic thinking skills, exceptional communication abilities, and a passion for strategy and operations are crucial. If you are a motivated leader ready to make a significant impact, we invite you to apply by submitting your resume and cover letter.
+Then install dependencies using the requirements file:
+```bash
+pip install -r requirements.txt
 ```
-Criteria:
+You can add the NVidia API key to streamlit secrets. Create a new file 'secrets.toml' in the .streamlit folder. Then add the key:
 ```txt
-Industry experience working on machine learning problems 
-Ability to own the whole ML life cycle 
-Experience working with large social data and prediction problems
+NVIDIA_API_KEY = "nvapi-xxxxx"
 ```
+Replacing 'nvapi-xxxxx' with actual key. 
 
-
-Prompt: 
+## Running the app locally
+From the command line, and at the root of the application, run:
+```bash
+streamlit run main.py
+```
+That should launch the app in a browser window, and generate output like:
 ```txt
+You can now view your Streamlit app in your browser.
 
-Please review the resume and job description using the criterion below. Answer with 'pass' if the resume is compatible with the job description, 
-and 'fail' if the resume is not compatible with the job description. Give a reason for the decision.
-Your output should be in the following format:
-{{
-    "decision": "pass or fail",
-    "reason": "reason for the decision"
-}}
-
-### Screening Criteria
-{criterion}
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.86.72:8501
 ```
-Decision: 
-```txt
-I think there may be a mistake here. The screening criteria "Ability to own the whole ML life cycle" doesn\'t seem to be relevant to the job description, which is for a Strategy Consulting Team Leader role in the Financial Services sector.\n\nHowever, I\'ll review the resume and job description based on the job description\'s requirements.\n\n{\n    "decision": "pass",\n    "reason": "The resume shows deep Financial Services sector experience, management of consulting engagements, development and implementation of business strategies, and leadership of post-M&A integration processes, which aligns with the job description\'s requirements. The candidate also has an MBA from a top-tier institution (Wharton) and a proven track record of delivering high-impact results."\n}
-```
+If you have setup the key in the secrets file, then the key field should be populated, and the app. If not, then enter the key in the field within the sidebar.
