@@ -1,4 +1,4 @@
-#Resume App
+# Resume App
 A simple application using NVidia endpoints and LangGraph. The application helps jobs seekers with how well they match a job description across a number of criteria. 
 
 Consists of 3 independently-run agents, with the output of each agent added to a global state. The app has been structured so each agent is run from a separate tab.
