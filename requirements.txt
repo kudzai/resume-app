@@ -5,3 +5,4 @@ langchain-nvidia-ai-endpoints
 python-dotenv
 httpx
 pypdf
+tenacity
